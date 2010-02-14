@@ -1,0 +1,18 @@
+==========================
+Ushahidi Twitter Aggregator
+==========================
+
+There are three controller services:
+- Twitter controller; a service that will connect to the twitter firehose and add tweets to a rotating file
+- Parser controller; a crontab that should run often, that grabs the oldest rotated file and parses the tweets and creates a csv file for batch insert
+
+This controller should yet be created:
+- Insert controller; a crontab that should run often, that grabs the oldest csv file and performs a batch insert into the database.
+
+==========================
+Config
+==========================
+Set the tmp_directory configuration option in the module, to choose the directory where to store the temporary files. Make sure it's writable by the user running the process
+
+Set the site_protocol in the application/config/config.php to '', instead of 'http'. For now the only way to get this to work. This
+should change since it interferes with the website behavior
