@@ -91,16 +91,22 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 							<!-- additional content -->
 							<div class="additional-content">
 								<h5><?php echo Kohana::lang('ui_main.how_to_report'); ?></h5>
+									Help Ushahidi to seperate signal from noice.<br/><br/>
 								<ol>
 									<?php if (!empty($phone_array)) 
-									{ ?><li>By sending a message to <?php foreach ($phone_array as $phone) {
+									{ ?><li>Add or Click on tags to report accuracy<!-- <?php foreach ($phone_array as $phone) {
 										echo "<strong>". $phone ."</strong>";
 										if ($phone != end($phone_array)) {
 											echo " or ";
 										}
-									} ?></li><?php } ?>
+									} ?>-->
+									</li><?php } ?>
+									<li>Dispute Inaccuracies</li>
+									<li>Mark irrelevant content as 'chatter'</li>
 									<?php if (!empty($report_email)) 
-									{ ?><li>By sending an email to <a href="mailto:<?php echo $report_email?>"><?php echo $report_email?></a></li><?php } ?>
+									{ ?><li>Email reports to <a href="mailto:<?php echo $report_email?>"><?php echo $report_email?></a></li><?php } ?>
+									<li>What to do more? <strong>Register</strong></li> to become a sweeper.
+								<!--
 									<?php if (!empty($twitter_hashtag_array)) 
 												{ ?><li>By sending a tweet with the hashtag/s <?php foreach ($twitter_hashtag_array as $twitter_hashtag) {
 									echo "<strong>". $twitter_hashtag ."</strong>";
@@ -109,6 +115,7 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 									}
 									} ?></li><?php } ?>
 									<li>By <a href="<?php echo url::base() . 'reports/submit/'; ?>">filling a form</a> at the website</li>
+										-->
 								</ol>					
 		
 							</div>
@@ -122,7 +129,7 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 							<div class="floatbox">
 							
 								<!-- filters -->
-								<div class="filters clearingfix">
+							<!--	<div class="filters clearingfix">
 								<div style="float:left; width: 65%">
 									<strong><?php echo Kohana::lang('ui_main.filters'); ?></strong>
 									<ul>
@@ -140,7 +147,7 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 										<li><a id="view_1" <?php if($map_enabled === '3dmap') { echo 'class="active" '; } ?>href="#"><span><?php echo Kohana::lang('ui_main.time'); ?></span></a></li>
 </div>
 								</div>
-								<!-- / filters -->
+								< !-- / filters -->
 								<div>
 									<table class="table-list">
 										<!--<thead>
@@ -152,10 +159,11 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 										</thead> -->
 										<tbody>
 											<?php
-										/*	
+									/*		
+											$settings = ORM::factory('settings')->find(1);
 
-											$username = 'kavumaivan';
-											$password = 'Evelyn1';
+											$username = $settings->twitter_username;
+											$password = $settings->twitter_password;
 											
 											$twitter  = new Arc90_Service_Twitter($username, $password);
 											$params = array();
@@ -178,11 +186,8 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 												// Print the exception message (invalid parameter, etc)   
 												print $e->getMessage();   
 										}  
-											
-											
-											echo "</td></tr>";
-											*/
-															
+												echo "</td></tr>";
+												*/			
 											foreach ($feeds as $feed)
 											{
 												$feed_id = $feed->id;
@@ -193,9 +198,9 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 											?>
 											<tr>
 												<td><div style="padding:5px;width:35px;height:45px;border:1px solid #660033;Text-align:center; -moz-border-radius: 5px; -webkit-border-radius: 5px;">
-												  <a href="<?php echo $feed_link; ?>" target="_blank">
+												  <a href="" >
 														<img src="<?php echo url::base(); ?>/media/img/rssdark.png" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
-													</a><br/> <span style="font-weight:bold;color:#660033">100%</span>
+													</a><br/> <span style="font-weight:bold;color:#660033"><?php echo round($feed->weight,0 ); ?>%</span>
 													 </div>
 												</td>
 												<td style="border-bottom:2px solid #AAAAAA;"> <?php echo $feed->item_description ;?>  ...
@@ -203,18 +208,25 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 													Delivered on: <?php echo $feed->item_date ; /*$testDate;*/ ?>&nbsp;&nbsp;&nbsp;  Source:<?php echo $feed->item_source; ?>   <br>
 																										
 													 <form id="formtag<?php echo $feed_id ;?>" name="formtag<?php echo $feed_id ;?>"  method="POST" action="/main/tagging/feed/<?php echo $feed_id ; ?>/category/<?php echo $selected_category ;?>/page/<?php echo $current_page ; ?>" >
-													 <a href="javascript:submitform('formtag<?php echo $feed_id ;?>')" >
+													 <a href="javascript:submitform('<?php echo $feed_id ;?>')" >
 													 <img src="<?php echo url::base(); ?>/media/img/Tagbtn.png" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
 													 </a>
-													 <input type=text id="tag_<?php echo $feed_id; ?>"  name="tag_<?php echo $feed_id; ?>" value="" />&nbsp;&nbsp;<?php echo $feed->tags; ?>
+													 <input type=text id="tag_<?php echo $feed_id; ?>"  name="tag_<?php echo $feed_id; ?>" value="" />&nbsp;&nbsp;
+													 	<label id="lbltags_<?php echo $feed_id; ?>" name="lbltags_<?php echo $feed_id; ?>" >
+														  <?php echo $feed->tags; ?>	
+														</label>												 
+													 </form>
+													 <?php if(isset($_SESSION['auth_user'])){ ?>
 													 <div style="float:right">
+													 <a href="<?php echo $feed_link; ?>" target="_blank">
 													 <img src="<?php echo url::base(); ?>/media/img/page_icon.jpg" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
+													 </a>
 													 <img src="<?php echo url::base(); ?>/media/img/swift_page_icon.jpg" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
 													 <img src="<?php echo url::base(); ?>/media/img/no_entry_icon.jpg" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
 													 <img src="<?php echo url::base(); ?>/media/img/qtnmark.jpg" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
 													 </div>
+													 <?php } ?>
 													 
-													 </form>
 													</td>
 											</tr>
 											<?php
@@ -247,7 +259,7 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 								</div>
 								<?php } ?> -->
 								<!-- / map -->
-								<div id="graph" class="graph-holder"></div>
+							<!--	<div id="graph" class="graph-holder"></div> -->
 							</div>
 						</div>
 						<!-- / content column -->

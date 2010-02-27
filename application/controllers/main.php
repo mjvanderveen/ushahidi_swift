@@ -131,35 +131,55 @@ class Main_Controller extends Template_Controller {
         // Get tracking javascript for stats
         $this->template->footer->ushahidi_stats = $this->_ushahidi_stats();
     }
-    
+    /**
+    	This function update the tags.
+    */
 
+		private function update_tags($id,$tag)
+		{
+					if(ORM::factory('tags')->where('tagged_id',$id)->where('tablename','feed_item')->count_all() == 0)
+					{	
+						$tags = new Tags_Model();
+						$tags->tagged_id = $id;
+						$tags->tablename = 'feed_item';
+						$tags->tags = $tag;
+						$tags->save();
+					}
+					else
+					{
+							$db = new Database();
+						  $sql1 = "SELECT id,  tagged_id,  tablename,  tags   FROM tags WHERE tagged_id = ".$id." AND tablename = 'feed_item' ";
+							$tags = $db->query($sql1);
+							$tagnew_tags = $tag." ".$tags[0]->tags ;																
+							$sql2 = "UPDATE tags SET tags = '".$tagnew_tags."' WHERE id=".$tags[0]->id;								
+							$db->query($sql2);											
+					}	
+		}
+		
+		public function Ajax_tagging($id,$tag)
+		{
+					if(request::is_ajax())
+					{	
+						$db = new Database();
+					  $this->auto_render=false;
+						$this->update_tags($id,$tag);
+						$sql1 = "SELECT id,  tagged_id,  tablename,  tags   FROM tags WHERE tagged_id = ".$id." AND tablename = 'feed_item' ";
+						$tags = $db->query($sql1);
+						$tagnew_tags = $tags[0]->tags ;							
+						echo json_encode(array('tags' => $tagnew_tags));		
+					}
+		}
+		
 		/**
 		*		This function help the tagging feeds
 		*/
 		public function tagging($feed,$object_id,$cat,$category_id,$page_val,$page_no)
-		{
+		{			
 					if($_POST)
 					{
-						if(ORM::factory('tags')->where('tagged_id',$object_id)->where('tablename','feed_item')->count_all() == 0)
-						{	$tags = new Tags_Model();
-							$tags->tagged_id = $object_id;
-							$tags->tablename = 'feed_item';
-							$tags->tags = $_POST["tag_$object_id"];
-							$tags->save();
-						}
-						else
-						{
-								$tags = ORM::factory('tags')->where('tagged_id',$object_id)->where('tablename','feed_item')->find(1);
-								$tagnew_tags = $tags->tags." ".$_POST["tag_$object_id"];
-																
-								$db = new Database();
-								$db->query("UPDATE tags SET tags = '".$tagnew_tags."' WHERE id=".$tags->id);
-											
-						}	
+							$this->update_tags($object_id,$_POST["tag_$object_id"]);
+							url::redirect("/main/index/category/$category_id/page/".$page_no );	
 					}			
-				//	 echo " _POST['tag_$object_id']=> ".$_POST["tag_$object_id"]."<br/>";
-					url::redirect("/main/index/category/$category_id/page/".$page_no );	
-	
 		}
 
 		
@@ -172,16 +192,27 @@ class Main_Controller extends Template_Controller {
 				foreach (ORM::factory('feed')->select('id','feed_url','category_id')->find_all() as $dbfeed )
 				{				
 						//Don't do anything about twitter categories.
-						if($dbfeed->category_id != 1 && $dbfeed->category_id != 11 )
+						if($dbfeed->category_id != 11 )
 						{	
+								$url = "";
 								$feed = new SimplePie();				
 								$feed->enable_order_by_date(true);
-								$feed->set_feed_url($dbfeed->feed_url);
+								if ($dbfeed->category_id == 1)
+								{
+									$url	= "http://twitter.com/statuses/user_timeline/".$dbfeed->feed_url.".rss";
+									$feed->set_feed_url($url);
+															//	exit(0);
+								}else
+								{
+									$url = $dbfeed->feed_url;
+									$feed->set_feed_url($dbfeed->feed_url);
+								}								
+
 								$feed->set_cache_location(APPPATH.'cache');
-								$feed->set_timeout(20);
+								$feed->set_timeout(10);
 								$feed->init();							
 								$max_items =	$feed->get_item_quantity();								
-								$required_items = 20;
+								$required_items = 10;
 								$start = 0	;
 																											
 								for($i = $start ;$i < $max_items && $i < $required_items ;$i++)
@@ -197,10 +228,8 @@ class Main_Controller extends Template_Controller {
 											if ($author = $item->get_author())
 											{
 													$itemobj->item_source = $item->get_author()->get_name(); //temporary not working.
-											}
-											
-											//echo "in Main Controller itemobj->item_date => ".$itemobj->item_date."<br/>";
-									
+											}											
+										
 										//		 echo "in Main Controller $dbfeed->feed_url =>  latitude =".$feed->get_latitude().", longitude =".$feed->get_longitude()."<br/>";
 										//echo "in Main Controller $dbfeed->feed_url =>   get_author() => ".$feed->get_author()."<br/>";
 											if(count(ORM::factory('feed_item')->where('item_link',$item->get_permalink())->find_all()) == 0)	
@@ -224,6 +253,7 @@ This is the index function called by default.
         $this->template->content = new View('main');
         
         $this->template->content->auth = null;
+        
        if(isset( $_SESSION['auth_user']))
        {
          $this->template->content->auth = $_SESSION['auth_user'] ;
@@ -231,7 +261,7 @@ This is the index function called by default.
 			//try getting new feeds and cache them to the database.
 			  $this->get_new_feeds();
 				$message = new Messages_Controller();
-				if($category_id == 1)
+				if($category_id == 11)
 				{
 					$message->load_tweets();
 				}
@@ -332,11 +362,13 @@ This is the index function called by default.
 										item_link, 
 										item_date, 
 										 t.tags AS tags,
+										 a.weight as weight,
 										item_source 
-												FROM feed_item f LEFT OUTER JOIN tags t  ON t.tagged_id = f.id AND t.tablename = 'feed_item'
+												FROM feed_item f LEFT OUTER JOIN tags t ON t.tagged_id = f.id AND t.tablename = 'feed_item'
+														 LEFT OUTER JOIN feed a ON f.feed_id = a.id 
 												WHERE ".$category_filter;
 								
-		if($category_id == 1)
+		if($category_id == 11)
 		{ 	
 			$sql .=		"UNION 					SELECT 
 											m.id as id
@@ -346,8 +378,10 @@ This is the index function called by default.
 			 $sql .=	  		"m.service_messageid as item_link,
 											m.message_date as item_date,
 											 t.tags AS tags,
+											 a.weight as weight,
 											m.message_from as item_source
-											FROM message m  LEFT OUTER JOIN tags t  ON t.tagged_id = m.id AND t.tablename = 'feed_item'  ";
+											FROM message m  LEFT OUTER JOIN tags t  ON t.tagged_id = m.id AND t.tablename = 'feed_item'  
+													LEFT OUTER JOIN reporter a ON a.id = m.reporter_id ";
 											
 			}					
 			
