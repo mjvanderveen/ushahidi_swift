@@ -14,8 +14,6 @@
  * Public License (LGPL)
  */
  
-require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
-
  
 ?>
 
@@ -129,25 +127,9 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 							<div class="floatbox">
 							
 								<!-- filters -->
-							<!--	<div class="filters clearingfix">
-								<div style="float:left; width: 65%">
-									<strong><?php echo Kohana::lang('ui_main.filters'); ?></strong>
-									<ul>
-										<li><a id="media_0" class="active" href="#"><span><?php echo Kohana::lang('ui_main.reports'); ?></span></a></li>
-										<li><a id="media_4" href="#"><span><?php echo Kohana::lang('ui_main.news'); ?></span></a></li>
-										<li><a id="media_1" href="#"><span><?php echo Kohana::lang('ui_main.pictures'); ?></span></a></li>
-										<li><a id="media_2" href="#"><span><?php echo Kohana::lang('ui_main.video'); ?></span></a></li>
-										<li><a id="media_0" href="#"><span><?php echo Kohana::lang('ui_main.all'); ?></span></a></li>
-									</ul>
-</div>
-								<div style="float:right; width: 31%">
-									<strong><?php echo Kohana::lang('ui_main.views'); ?></strong>
-									<ul>
-										<li><a id="view_0" <?php if($map_enabled === 'streetmap') { echo 'class="active" '; } ?>href="#"><span><?php echo Kohana::lang('ui_main.clusters'); ?></span></a></li>
-										<li><a id="view_1" <?php if($map_enabled === '3dmap') { echo 'class="active" '; } ?>href="#"><span><?php echo Kohana::lang('ui_main.time'); ?></span></a></li>
-</div>
+			
 								</div>
-								< !-- / filters -->
+								<!-- / filters -->
 								<div>
 									<table class="table-list">
 										<!--<thead>
@@ -159,35 +141,7 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 										</thead> -->
 										<tbody>
 											<?php
-									/*		
-											$settings = ORM::factory('settings')->find(1);
-
-											$username = $settings->twitter_username;
-											$password = $settings->twitter_password;
 											
-											$twitter  = new Arc90_Service_Twitter($username, $password);
-											$params = array();
-										try   
-										{  
-										echo "<tr><td colspan=2> Twiters go here <br/>	"; 	
-											$response =  $twitter->getFriendsTimeline('xml');
-											//$response  = $twitter->getMessages('json', $params);
-
-											// If Twitter returned an error (401, 503, etc), print status code   
-												echo	$response->getData();
-
-												if($response->isError())   
-												{   
-													echo $response->http_code . "\n";   
-												}   
-										}   
-										catch(Arc90_Service_Twitter_Exception $e)   
-										{   
-												// Print the exception message (invalid parameter, etc)   
-												print $e->getMessage();   
-										}  
-												echo "</td></tr>";
-												*/			
 											foreach ($feeds as $feed)
 											{
 												$feed_id = $feed->id;
@@ -197,18 +151,34 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 												//$feed_source = text::limit_chars($feed->feed->item_name, 15, "...");
 											?>
 											<tr>
-												<td><div style="padding:5px;width:35px;height:45px;border:1px solid #660033;Text-align:center; -moz-border-radius: 5px; -webkit-border-radius: 5px;">
-												  <a href="" >
-														<img src="<?php echo url::base(); ?>/media/img/rssdark.png" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
-													</a><br/> <span style="font-weight:bold;color:#660033"><?php echo round($feed->weight,0 ); ?>%</span>
+												<td  id="feed_row_<?php echo $feed_id ;?>" >
+												<?php if(isset($_SESSION['auth_user'])){ ?>
+													<a href="javascript:submitfeed_to_ushahidi('<?php echo $feed_id ;?>','<?php echo $feed->category_id ; ?>')"  >
+												<?php } ?>
+													<div style="padding:5px;width:35px;height:45px;border:1px solid #660033;Text-align:center; -moz-border-radius: 5px; -webkit-border-radius: 5px;">
+												  	<img src="<?php echo url::base(); ?>/media/img/rssdark.png" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
+													<br/> 
+													<span style="font-weight:bold;color:#660033">
+															<label id="weight_<?php echo $feed_id; ?>" name="weight_<?php echo $feed_id; ?>" >
+																	<?php if ($feed->weight == 0.00){ echo "_" ;}else{ echo round($feed->weight,0 )."%"; } ?>
+															</label>
+													</span>
 													 </div>
+													 <?php if(isset($_SESSION['auth_user'])){ ?>
+													 		</a>
+													 <?php } ?>
 												</td>
-												<td style="border-bottom:2px solid #AAAAAA;"> <?php echo $feed->item_description ;?>  ...
+												<td style="border-bottom:2px solid #AAAAAA;"   id="feed_row_<?php echo $feed_id ;?>" >
+												 <?php echo $feed->item_description ;?>  ...
 															<br/>
-													Delivered on: <?php echo $feed->item_date ; /*$testDate;*/ ?>&nbsp;&nbsp;&nbsp;  Source:<?php echo $feed->item_source; ?>   <br>
+													<strong>Delivered: </strong> <?php echo $feed->item_date ; /*$testDate;*/ ?>&nbsp;&nbsp;&nbsp; 
+													<strong>Source: </strong><?php echo $feed->item_source; ?>   <br/>
+													<!-- to displace status of sumitted feed to ushahidi -->
+													<label id="lblreport_<?php echo $feed_id; ?>" name="lblreport_<?php echo $feed_id; ?>" >
+													</label>
 																										
 													 <form id="formtag<?php echo $feed_id ;?>" name="formtag<?php echo $feed_id ;?>"  method="POST" action="/main/tagging/feed/<?php echo $feed_id ; ?>/category/<?php echo $selected_category ;?>/page/<?php echo $current_page ; ?>" >
-													 <a href="javascript:submitform('<?php echo $feed_id ;?>')" >
+													 <a href="javascript:submit_tags('<?php echo $feed_id ;?>')" >
 													 <img src="<?php echo url::base(); ?>/media/img/Tagbtn.png" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
 													 </a>
 													 <input type=text id="tag_<?php echo $feed_id; ?>"  name="tag_<?php echo $feed_id; ?>" value="" />&nbsp;&nbsp;
@@ -218,12 +188,19 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 													 </form>
 													 <?php if(isset($_SESSION['auth_user'])){ ?>
 													 <div style="float:right">
-													 <a href="<?php echo $feed_link; ?>" target="_blank">
+													 <a href="<?php echo $feed->item_link; ?>" target="_blank">
+
 													 <img src="<?php echo url::base(); ?>/media/img/page_icon.jpg" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
 													 </a>
-													 <img src="<?php echo url::base(); ?>/media/img/swift_page_icon.jpg" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
-													 <img src="<?php echo url::base(); ?>/media/img/no_entry_icon.jpg" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
+													<a href="javascript:change_feed_rating('<?php echo $feed_id ;?>','<?php echo $feed->category_id ; ?>','+1')" > 
+														<img src="<?php echo url::base(); ?>/media/img/swift_page_icon.jpg" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
+													 </a>
+													<a href="javascript:change_feed_rating('<?php echo $feed_id ;?>','<?php echo $feed->category_id ; ?>','-1')" > 
+													  <img src="<?php echo url::base(); ?>/media/img/no_entry_icon.jpg" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
+													</a>
+													<a href="javascript:mark_irrelevant('<?php echo $feed_id ;?>','<?php echo $feed->category_id ; ?>')" > 
 													 <img src="<?php echo url::base(); ?>/media/img/qtnmark.jpg" alt="<?php echo $feed_title ?>" align="absmiddle" style="border:0" />
+													</a> 
 													 </div>
 													 <?php } ?>
 													 
@@ -239,26 +216,7 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 									</div>
 									<!--<a class="more" href="<?php echo url::base() . 'feeds' ?>">View More...</a> -->
 							</div>
-								<!-- map -->
-								<!--
-								<?php
-									// My apologies for the inline CSS. Seems a little wonky when styles added to stylesheet, not sure why.
-									?>
-								<div class="<?php echo $map_container; ?>" id="<?php echo $map_container; ?>" <?php if($map_container === 'map3d') { echo 'style="width:573px; height:573px;"'; } ?>></div> 
-								<?php if($map_container === 'map') { ?>
-								<div class="slider-holder">
-									<form action="">
-										<fieldset>
-											<div class="play"><a href="#" id="playTimeline">PLAY</a></div>
-											<label for="startDate">From:</label>
-											<select name="startDate" id="startDate"><?php echo $startDate; ?></select>
-											<label for="endDate">To:</label>
-											<select name="endDate" id="endDate"><?php echo $endDate; ?></select>
-										</fieldset>
-									</form>
-								</div>
-								<?php } ?> -->
-								<!-- / map -->
+								
 							<!--	<div id="graph" class="graph-holder"></div> -->
 							</div>
 						</div>
@@ -290,7 +248,7 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 	 								if ($feedcounts == 0)
 									{
 									?>
-									<tr><td colspan="3">No Reports In The System</td></tr>
+									<tr><td colspan="3">No Feeds In The System</td></tr>
 
 									<?php
 									}
@@ -298,7 +256,7 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 									{
 											?>
 									<tr>
-										<td><a href="<?php echo $feedsum->feed_url; ?>"> <?php echo $feedsum->feed_name; ?></a></td>
+										<td><a href="<?php echo $feedsum->feed_url; ?>" target="_BLANK"> <?php echo $feedsum->feed_name; ?></a></td>
 										<td><?php echo $feedsum->total;  ?></td>
 									</tr>
 									<?php
@@ -311,24 +269,23 @@ require_once APPPATH.'libraries/Arc90/Service/Twitter.php';
 				
 						<!-- right content block -->
 						<div class="content-block-right">
-						
+							<h5>ANALYTIC SUITE</h5>
+							<table class="table-list">
+									<?php
+									foreach ($analyticSummary as $feedsum)
+												{
+														?>
+												<tr>
+												<td><h3> <?php echo $feedsum->count." of ".$feedsum->total."  ".$feedsum->title;  ?> </h3></td>
+												</tr>
+												<?php
+												}		?>
+								</table>
 						</div>
 						<!-- / right content block -->
 				
 					</div>
-					<!-- /content blocks -->
-<?php
-/*
- *					<!-- site footer -->
- *					<div class="site-footer">
- *
- *						<h5>Site Footer</h5>
- *						Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris porta. Sed eget nisi. Fusce rhoncus lorem ac erat. Maecenas turpis tellus, volutpat quis, sodales et, consectetuer ac, est. Nullam sed est sed augue vestibulum condimentum. In tellus. Integer luctus odio eu arcu. Pellentesque imperdiet felis eu tortor. Morbi ante dui, iaculis id, vulputate sit amet, venenatis in, turpis. Fusce in risus.
- *
- *					</div>
- *					<!-- / site footer -->
-*/
-?>
+				
 			
 				</div>
 				<!-- content -->

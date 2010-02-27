@@ -1410,16 +1410,6 @@ CREATE TABLE IF NOT EXISTS `feed` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=217 ;
 
---
--- Dumping data for table `feed`
---
-
-INSERT INTO `feed` (`id`, `feed_name`, `feed_url`, `category_id`, `weight`, `feed_cache`, `feed_active`, `feed_update`) VALUES
-(212, 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml', 3, '100.00', NULL, 1, 1265631321),
-(213, 'http://www.cnn.com/?eref=rss_topstories', 'http://www.cnn.com/?eref=rss_topstories', 4, '100.00', NULL, 1, 1265631324),
-(214, 'http://rss.news.yahoo.com/rss/business', 'http://rss.news.yahoo.com/rss/business', 5, '100.00', NULL, 1, 1265631332);
-
-
 
 -- --------------------------------------------------------
 
@@ -1472,7 +1462,7 @@ INSERT INTO `category` (`id`, `parent_id`, `locale`, `category_type`, `category_
 (3, 0, 'en_US', 5, 'BLOGS', 'BLOGS', 'FFFFFF', NULL, NULL, 1),
 (4, 0, 'en_US', 5, 'NEWS', 'NEWS', 'FFFFFF', NULL, NULL, 1),
 (5, 0, 'en_US', 5, 'OTHERS', 'OTHERS', 'FFFFFF', NULL, NULL, 1),
-(10, 0, 'en_US', 5, 'EMAILS', 'EMAILS', 'FFFFFF', NULL, NULL, 0),
+(10, 0, 'en_US', 5, 'EMAILS', 'EMAILS', 'FFFFFF', NULL, NULL, 1),
 (6, 0, 'en_US', 5, 'GOVERNMENT FORCES', 'GOVERNMENT FORCES', '9999FF', NULL, NULL, 0),
 (7, 0, 'en_US', 5, 'CIVILIANS', 'CIVILIANS', '66CC00', NULL, NULL, 0),
 (8, 0, 'en_US', 5, 'LOOTING', 'LOOTING', 'FFCC00', NULL, NULL, 0),
@@ -1501,3 +1491,9 @@ VALUES (
 
 
 ALTER TABLE `reporter` ADD `weight` DECIMAL(10,2) NOT NULL AFTER `reporter_ip` ;
+
+
+ALTER TABLE `feed_item` ADD `submited_to_ushahidi` TINYINT NOT NULL DEFAULT '0' AFTER `item_source` ;
+
+ALTER TABLE `message` ADD `submited_to_ushahidi` TINYINT NOT NULL DEFAULT '0' AFTER `message_level` ;
+

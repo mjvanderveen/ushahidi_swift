@@ -84,28 +84,26 @@
 	
 	//Custom stylesheet
 	echo html::stylesheet(url::base().'themes/'.$site_style."/style.css");
+
+	echo html::stylesheet(url::base().'media/css/jquery-ui-1.7.2.custom.css');
+	echo html::script('media/js/jquery-1.3.2.min', true);
+	echo html::script('media/js/ui.core.js', true); 
+	echo html::script('media/js/ui.slider.js', true); 	
 	?>
-
-<!-- this is temporary to the tagging working.-->
 <script type="text/javascript">
-function submitform(id)
-{  
-	  var tag = document.getElementById('tag_'+id);
-	  var theurl	= '/main/Ajax_tagging/'+id+'/'+tag.value; 
-		tag.value = "";
-			   $.ajax( //ajax request starting
-				 	{
-		       url: theurl, //send the ajax request to student/delete/$id
-           type:"POST",//request is a POSt request
-		       dataType: "json",//expect json as 
-		       success: function(data) //trigger this on success
-			   	 {
-				   		document.getElementById('lbltags_'+id).innerHTML = data['tags'];
-				   }			   
-		    });		    
-	}
-
-</script>
+	$(function() {
+		$("#slider-range").slider({
+			range: true,
+			min: 0,
+			max: 100,
+			values: [75, 300],
+			slide: function(event, ui) {
+				$("#amount").val('$' + ui.values[0] + ' - $' + ui.values[1]);
+			}
+		});
+		$("#amount").val('$' + $("#slider-range").slider("values", 0) + ' - $' + $("#slider-range").slider("values", 1));
+	});
+	</script>
 
 	<!--[if IE 6]>
 	<script type="text/javascript" src="js/ie6pngfix.js"></script>
@@ -116,6 +114,9 @@ function submitform(id)
 		   ui_click: true
 		}	
 		<?php echo $js . "\n"; ?>
+		
+		<?php echo $js2 . "\n"; ?>
+		
 	</script>
 </head>
 
