@@ -1,18 +1,18 @@
-<?php 
+<?php
 /**
  * Forms view page.
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @module     API Controller
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
-?>	
+?>
 		<div class="bg">
 			<h2>
 				<a href="<?php echo url::base() . 'admin/manage' ?>">Categories</a>
@@ -20,6 +20,7 @@
 				<span>(<a href="#add">Add New</a>)</span>
 				<a href="<?php echo url::base() . 'admin/manage/organizations' ?>">Organizations</a>
 				<a href="<?php echo url::base() . 'admin/manage/pages' ?>">Pages</a>
+				<a href="<?php echo url::base() . 'admin/manage/twitter' ?>">Twitter</a>
 				<a href="<?php echo url::base() . 'admin/manage/feeds' ?>">News Feeds</a>
 				<a href="<?php echo url::base() . 'admin/manage/layers' ?>">Layers</a>
 				<a href="<?php echo url::base() . 'admin/manage/reporters' ?>">Reporters</a>
@@ -53,7 +54,7 @@
 			}
 			?>
 			<!-- report-table -->
-			<div class="report-form">				
+			<div class="report-form">
 				<div class="table-holder">
 					<table class="table">
 						<thead>
@@ -81,7 +82,7 @@
 										<h3>No Results To Display!</h3>
 									</td>
 								</tr>
-							<?php	
+							<?php
 							}
 							foreach ($forms as $form)
 							{
@@ -89,7 +90,7 @@
 								$form_title = $form->form_title;
 								$form_description = $form->form_description;
 								$form_active = $form->form_active;
-								
+
 								$fields = ORM::factory('form_field')
 									->where('form_id', $form_id)
 									->orderby('field_position', 'asc')
@@ -120,7 +121,7 @@
 									{
 										$form_fields .= form::textarea("custom_".$field_id, '');
 									}
-									if ($field_isdate == 1) 
+									if ($field_isdate == 1)
 									{
 										$form_fields .= "&nbsp;<a href=\"#\"><img src = \"".url::base()."media/img/icon-calendar.gif\"  align=\"middle\" border=\"0\"></a>";
 									}
@@ -168,7 +169,7 @@
 															<?php print form::dropdown('field_type',$form_field_types, '', ' onchange="showFormSelected(this.options[this.selectedIndex].value, \''.$form_id.'\', \'\', \'\')"'); ?>
 															<div id="form_fields_<?php echo $form_id; ?>" class="forms_fields_new"></div>
 														<?php echo form::close(); ?>
-													</div>		
+													</div>
 												</div>
 											</div>
 											<div id="form_fields_current_<?php echo $form_id; ?>" class="forms_fields_current">
@@ -184,7 +185,7 @@
 					</table>
 				</div>
 			</div>
-	
+
 			<!-- tabs -->
 			<div class="tabs">
 				<!-- tabset -->
@@ -196,26 +197,26 @@
 				<div class="tab">
 					<?php print form::open(NULL,array('id' => 'formMain',
 					 	'name' => 'formMain')); ?>
-					<input type="hidden" id="form_id" 
+					<input type="hidden" id="form_id"
 						name="form_id" value="" />
-					<input type="hidden" id="form_active" 
+					<input type="hidden" id="form_active"
 						name="form_active" vaule="" />
-					<input type="hidden" name="action" 
+					<input type="hidden" name="action"
 						id="action" value=""/>
 					<div class="tab_form_item">
 						<strong>Form Title:</strong><br />
-						<?php print form::input('form_title', '', 
+						<?php print form::input('form_title', '',
 						' class="text"'); ?>
 					</div>
 					<div class="tab_form_item">
 						<strong>Form Description:</strong><br />
 						<?php print form::input('form_description', '', ' class="text long"'); ?>
-					</div>						
+					</div>
 					<div class="tab_form_item">
 						&nbsp;<br />
 						<input type="image" src="<?php echo url::base() ?>media/img/admin/btn-save.gif" class="save-rep-btn" />
 					</div>
-					<?php print form::close(); ?>			
+					<?php print form::close(); ?>
 				</div>
 			</div>
 		</div>

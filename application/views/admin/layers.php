@@ -1,16 +1,16 @@
-<?php 
+<?php
 /**
  * Layers view page.
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @module     Layers view
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 ?>
 			<div class="bg">
@@ -19,6 +19,7 @@
 					<a href="<?php echo url::base() . 'admin/manage/forms' ?>">Forms</a>
 					<a href="<?php echo url::base() . 'admin/manage/organizations' ?>">Organizations</a>
 					<a href="<?php echo url::base() . 'admin/manage/pages' ?>">Pages</a>
+					<a href="<?php echo url::base() . 'admin/manage/twitter' ?>">Twitter</a>
 					<a href="<?php echo url::base() . 'admin/manage/feeds' ?>">News Feeds</a>
 					<a href="<?php echo url::base() . 'admin/manage/layers' ?>" class="active">Layers</a>
 					<span>(<a href="#add">Add New</a>)</span>
@@ -85,7 +86,7 @@
 												<h3>No Results To Display!</h3>
 											</td>
 										</tr>
-									<?php	
+									<?php
 									}
 									foreach ($layers as $layer)
 									{
@@ -132,7 +133,7 @@
 												</ul>
 											</td>
 										</tr>
-										<?php									
+										<?php
 									}
 									?>
 								</tbody>
@@ -140,7 +141,7 @@
 						</div>
 					<?php print form::close(); ?>
 				</div>
-				
+
 				<!-- tabs -->
 				<div class="tabs">
 					<!-- tabset -->
@@ -150,13 +151,13 @@
 					</ul>
 					<!-- tab -->
 					<div class="tab">
-						<?php print form::open(NULL,array('enctype' => 'multipart/form-data', 
+						<?php print form::open(NULL,array('enctype' => 'multipart/form-data',
 							'id' => 'layerMain', 'name' => 'layerMain')); ?>
-						<input type="hidden" id="layer_id" 
+						<input type="hidden" id="layer_id"
 							name="layer_id" value="" />
-						<input type="hidden" name="action" 
+						<input type="hidden" name="action"
 							id="action" value="a"/>
-						<input type="hidden" name="layer_file_old" 
+						<input type="hidden" name="layer_file_old"
 							id="layer_file_old" value=""/>
 						<div class="tab_form_item">
 							<strong>Layer Name:</strong><br />
@@ -198,7 +199,7 @@
 							&nbsp;<br />
 							<input type="image" src="<?php echo url::base() ?>media/img/admin/btn-save.gif" class="save-rep-btn" />
 						</div>
-						<?php print form::close(); ?>			
+						<?php print form::close(); ?>
 					</div>
 				</div>
 			</div>

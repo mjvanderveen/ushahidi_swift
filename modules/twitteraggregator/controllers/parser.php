@@ -31,23 +31,36 @@ class Parser_Controller extends Controller
 			return;
 		}
 
-		print "Starting new process";
+		// Get oldest file
+		$file = queue::get_oldest_file(Kohana::config('config.tmp_directory'), '.queue');
+
+		// if there is no file, stop the process
+		if(empty($file))
+		{
+			Kohana::log('debug', 'No file to process for parsing');
+			return;
+		}
 
 		// If not running, set the process to running
 		$process->process_active = true;
 		$process->save();
 
-		// Get oldest file
-		$file = queue::get_oldest_file(Kohana::config('config.tmp_directory'));
-
 		// Open file
-   		$fp = fopen(Kohana::config('config.tmp_directory') . $file, 'r');
+   		$fp = fopen(Kohana::config('config.tmp_directory').$file, 'r');
 
 	    // Check if something has gone wrong, or perhaps the file is just locked by another process
 	    if (!is_resource($fp))
 	    {
-	      Kohana::log('warning', 'WARN: Unable to open file or file already open: ' . $file . ' - Skipping.');
-	      return FALSE;
+	    	// Set the process to not running
+			$process->process_active = false;
+			$process->save();
+
+	      	Kohana::log('warning', 'WARN: Unable to open file or file already open: '.$file.' - Skipping.');
+	      	return;
+	    }
+	    else
+	    {
+	    	Kohana::log('debug', 'Processing twitter hose file: '.$file);
 	    }
 
 	    // Lock file
@@ -55,6 +68,7 @@ class Parser_Controller extends Controller
 
 		// Create tweets array
 		$tweets = array();
+		$users = array();
 
 	    // Loop over each line (1 line per status)
 	    $statusCounter = 0;
@@ -62,34 +76,56 @@ class Parser_Controller extends Controller
 	    {
 
 	      $data = json_decode($rawStatus, true);
+
 	      if (is_array($data) && isset($data['user']['screen_name'])) {
 	        // TODO: do some SILCC processing here
 
 			// Grab desired fields to store
 			$tweet = array();
-			$tweet['user'] = $data['user']['screen_name'];
+			$tweet['id'] = $data['id'];
+			$tweet['user_id'] = $data['user']['id'];
 			$tweet['text'] = $data['text'];
+			$tweet['created_at'] = date("Y-m-d H:i:s", strtotime($data['created_at']));
 
-			// Add to tweets
+			if(isset($data['geo']['coordinates']))
+			{
+				list($tweet['lattitude'], $tweet['longitude']) = split(',', $data['geo']['coordinates']);
+			}
+
+			$user = array();
+			$user['id'] = $data['user']['id'];
+			$user['name'] = $data['user']['name'];
+			$user['screen_name'] = $data['user']['screen_name'];
+			$user['created_at'] = date("Y-m-d H:i:s", strtotime($data['user']['created_at']));
+
+			// Add to tweets and users
 			array_push($tweets, $tweet);
+			array_push($users, $user);
 	      }
+
+	      $statusCounter++;
 
 	    } // End while
 
 		// Write to file
-		$fpf = fopen(Kohana::config('config.tmp_directory').'twitter_'.date('Ymd-His').'.csv', 'w');
-		fwrite($fpf, queue::str_putcsv($tweets));
+		$fpf = fopen(Kohana::config('config.tmp_directory').'twitter_tweets'.date('Ymd-His').'.tweets', 'w');
+		fwrite($fpf, queue::str_putcsv($tweets, ',', '"', "\r\n"));
 		fclose($fpf);
+
+	    // Write to file
+		$fpu = fopen(Kohana::config('config.tmp_directory').'twitter_users'.date('Ymd-His').'.users', 'w');
+		fwrite($fpu, queue::str_putcsv($users, ',', '"', "\r\n"));
+		fclose($fpu);
 
 	    // Release lock and close
 	    flock($fp, LOCK_UN);
 	    fclose($fp);
 
 	    // All done with this file
-	    Kohana::log('info', 'Successfully processed ' . $statusCounter . ' tweets from ' . $file . ' - deleting.');
+	    Kohana::log('debug', 'Successfully processed '.$statusCounter.' tweets from '.$file.' - deleting.');
 
 	    // Remove the file
-	    //unlink($file);
+	    unlink(Kohana::config('config.tmp_directory').$file);
 
 		// Set the process to not running
 		$process->process_active = false;

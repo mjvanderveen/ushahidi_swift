@@ -1,16 +1,16 @@
-<?php 
+<?php
 /**
  * Layout for the admin interface.
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @module     API Controller
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -25,7 +25,7 @@
 	echo "<!--[if lt IE 7]>".
 		html::stylesheet('media/css/ie6', '', true)
 		."<![endif]-->";
-	
+
 	// Load OpenLayers
 	if ($map_enabled)
 	{
@@ -35,7 +35,7 @@
 			OpenLayers.ImgPath = '".url::base().'media/img/openlayers/'."';
 			</script>";
 	}
-	
+
 	// Load jQuery
 	echo html::script('media/js/jquery', true);
 	echo html::script('media/js/jquery.form', true);
@@ -50,7 +50,7 @@
 			$('.tooltip[title]').hovertip();
 		});
 	</script>";
-	
+
 	// Load Flot
 	if ($flot_enabled)
 	{
@@ -58,7 +58,7 @@
 		echo html::script('media/js/excanvas.pack', true);
 		echo html::script('media/js/timeline.js', true);
 	}
-	
+
 	// Load ProtoChart
 	if ($protochart_enabled)
 	{
@@ -69,7 +69,7 @@
 		echo '<![endif]-->';
 		echo html::script('media/js/protochart/ProtoChart', true);
 	}
-	
+
 	// Load Raphael
 	if($raphael_enabled)
 	{
@@ -81,14 +81,14 @@
 		echo '</script>';
 		echo html::script('media/js/raphael-ushahidi-impact', true);
 	}
-	
+
 	// Load ColorPicker
 	if ($colorpicker_enabled)
 	{
 		echo html::stylesheet('media/css/colorpicker', '', true);
 		echo html::script('media/js/colorpicker', true);
 	}
-	
+
 	// Load TinyMCE
 	if ($editor_enabled)
 	{
@@ -112,15 +112,15 @@
 				<ul>
 					<li class="none-separator"> <?php echo Kohana::lang('ui_admin.welcome');echo $admin_name; ?>!</li>
 					<li class="none-separator"><a href="<?php echo url::base() ?>" title="View the home page">
-						<?php echo Kohana::lang('ui_admin.view_site');?></a>					
+						<?php echo Kohana::lang('ui_admin.view_site');?></a>
 					<li class="none-separator"><a href="<?php echo url::base()."admin/profile/" ?>"><?php echo Kohana::lang('ui_admin.my_profile');?></a></li>
 					<li><a href="log_out"><?php echo Kohana::lang('ui_admin.logout');?></a></li>
 				</ul>
                         </div>
                         <?php if( ( $version != "" ) && ( url::current() != "admin/upgrade" ) ) { ?>
                         <div id="update-info">
-                        Ushahidi <?php echo $version; ?> 
-                            <?php echo Kohana::lang('ui_admin.version_available');?> 
+                        Ushahidi <?php echo $version; ?>
+                            <?php echo Kohana::lang('ui_admin.version_available');?>
         <a href="<?php echo url::base() ?>admin/upgrade" title="upgrade ushahidi">
                              <?php echo Kohana::lang('ui_admin.update_link');?>
                             </a>.
@@ -172,15 +172,15 @@
 						<li><a href="<?php echo url::base() ?>admin/settings/site"><?php echo Kohana::lang('ui_admin.settings');?></a></li>
 						<li><a href="<?php echo url::base() ?>admin/manage"><?php echo Kohana::lang('ui_admin.manage');?></a></li>
 						<li><a href="<?php echo url::base() ?>admin/users"><?php echo Kohana::lang('ui_admin.users');?></a></li>
-					<?php 
+					<?php
 					} else if($this->auth->logged_in('admin')) { ?>
 						<li><a href="<?php echo url::base() ?>admin/manage"><?php echo Kohana::lang('ui_admin.manage');?></a></li>
-						<li><a href="<?php echo url::base() ?>admin/users"><?php echo Kohana::lang('ui_admin.users');?></a></li> 
+						<li><a href="<?php echo url::base() ?>admin/users"><?php echo Kohana::lang('ui_admin.users');?></a></li>
 					<?php
-					} else { ?> 
-					
-					<?php 
-					} 
+					} else { ?>
+
+					<?php
+					}
 					?>
 				</ul>
 			</div>

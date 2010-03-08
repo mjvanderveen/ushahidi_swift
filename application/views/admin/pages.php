@@ -1,16 +1,16 @@
-<?php 
+<?php
 /**
  * Pages view page.
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @module     Pages View
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 ?>
 			<div class="bg">
@@ -20,6 +20,7 @@
 					<a href="<?php echo url::base() . 'admin/manage/organizations' ?>">Organizations</a>
 					<a href="<?php echo url::base() . 'admin/manage/pages' ?>" class="active">Pages</a>
 					<span>(<a href="#add">Add New</a>)</span>
+					<a href="<?php echo url::base() . 'admin/manage/twitter' ?>">Twitter</a>
 					<a href="<?php echo url::base() . 'admin/manage/feeds' ?>">News Feeds</a>
 					<a href="<?php echo url::base() . 'admin/manage/layers' ?>">Layers</a>
 					<a href="<?php echo url::base() . 'admin/manage/reporters' ?>">Reporters</a>
@@ -83,8 +84,8 @@
 												<h3>No Results To Display!</h3>
 											</td>
 										</tr>
-									<?php	
-									} 
+									<?php
+									}
 									foreach ($pages as $page)
 									{
 										$page_id = $page->id;
@@ -102,7 +103,7 @@
 													<p><?php echo $page_description_short; ?></p>
 												</div>
 											</td>
-											
+
 											<td class="col-4">
 												<ul>
 													<li class="none-separator"><a href="#add" onClick="fillFields(
@@ -123,7 +124,7 @@
 						</div>
 					<?php print form::close(); ?>
 				</div>
-				
+
 				<div class="tabs">
 					<!-- tabset -->
 					<a name="add"></a>
@@ -134,10 +135,10 @@
 					<div class="tab">
 						<?php print form::open(NULL,array('id' => 'pageMain',
 						 	'name' => 'pageMain')); ?>
-						<input type="hidden" id="page_id" 
+						<input type="hidden" id="page_id"
 							name="page_id" value="<?php echo $form['page_id']; ?>" />
-						<input type="hidden" name="action" 
-							id="action" value="a"/>							
+						<input type="hidden" name="action"
+							id="action" value="a"/>
 						<div class="tab_form_item2">
 							<strong>Page Title:</strong><br />
 							<?php print form::input('page_title', $form['page_title'], ' class="text long"'); ?>
@@ -157,5 +158,5 @@
 						<?php print form::close(); ?>
 					</div>
 				</div>
-				
+
 			</div>

@@ -1,16 +1,16 @@
-<?php 
+<?php
 /**
  * Messages view page.
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @module     API Controller
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 ?>
 			<div class="bg">
@@ -19,11 +19,12 @@
 					<a href="<?php echo url::base() . 'admin/manage/forms' ?>">Forms</a>
 					<a href="<?php echo url::base() . 'admin/manage/organizations' ?>">Organizations</a>
 					<a href="<?php echo url::base() . 'admin/manage/pages' ?>">Pages</a>
+					<a href="<?php echo url::base() . 'admin/manage/twitter' ?>">Twitter</a>
 					<a href="<?php echo url::base() . 'admin/manage/feeds' ?>" class="active">News Feeds</a>
 					<span>(<a href="#add">Add New</a>)</span>
 					<a href="<?php echo url::base() . 'admin/manage/reporters' ?>">Reporters</a>
 				</h2>
-			
+
 				<!-- tabs -->
 				<div class="tabs">
 					<!-- tabset -->
@@ -31,13 +32,13 @@
 						<li><a href="<?php echo url::base() . 'admin/feeds' ?>">Feeds</a></li>
 						<li><a href="<?php echo url::base() . 'admin/manage/feeds_items' ?>" class="active">Feed Items</a></li>
 					</ul>
-				
+
 					<!-- tab -->
 					<div class="tab">
 						&nbsp;
 					</div>
 				</div>
-				
+
 				<?php
 				if ($form_error) {
 				?>
@@ -89,7 +90,7 @@
 											<h3>No Results To Display!</h3>
 										</td>
 									</tr>
-								<?php	
+								<?php
 								}
 								foreach ($feed_items as $item)
 								{
@@ -98,9 +99,9 @@
 									$item_description = $item->item_description;
 									$item_link = $item->item_link;
 									$item_date = date('Y-m-d', strtotime($item->item_date));
-									
+
 									$feed_name = $item->feed->feed_name;
-									
+
 									$location_id = $item->location_id;
 									$incident_id = $item->incident_id;
 									?>

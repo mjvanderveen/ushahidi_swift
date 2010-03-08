@@ -4,6 +4,7 @@
 					<a href="<?php echo url::base() . 'admin/manage/forms' ?>">Forms</a>
 					<a href="<?php echo url::base() . 'admin/manage/organizations' ?>">Organizations</a>
 					<a href="<?php echo url::base() . 'admin/manage/pages' ?>">Pages</a>
+					<a href="<?php echo url::base() . 'admin/manage/twitter' ?>">Twitter</a>
 					<a href="<?php echo url::base() . 'admin/manage/feeds' ?>">News Feeds</a>
 					<a href="<?php echo url::base() . 'admin/manage/layers' ?>">Layers</a>
 					<a href="<?php echo url::base() . 'admin/manage/reporters' ?>" class="active">Reporters</a>
@@ -69,11 +70,11 @@
 												<h3>No Results To Display!</h3>
 											</td>
 										</tr>
-									<?php	
-									} 
+									<?php
+									}
 									foreach ($reporters as $reporter)
 									{
-										$reporter_id = $reporter->id;   
+										$reporter_id = $reporter->id;
 								        $service_id = $reporter->service_id;
 										$level_id = $reporter->level_id;
 								        $service = new Service_Model($service_id);
@@ -126,7 +127,7 @@
 						</div>
 					<?php print form::close(); ?>
 				</div>
-				
+
 				<div class="tabs">
 					<!-- tabset -->
 					<a name="add"></a>
@@ -137,10 +138,10 @@
 					<div class="tab">
 						<?php print form::open(NULL,array('id' => 'rptrMain',
 						 	'name' => 'rptrMain')); ?>
-						<input type="hidden" id="reporter_id" 
+						<input type="hidden" id="reporter_id"
 							name="reporter_id" value="<?php echo $form['reporter_id']; ?>" />
-						<input type="hidden" name="action" 
-							id="action" value="a"/>							
+						<input type="hidden" name="action"
+							id="action" value="a"/>
 						<div class="tab_form_item">
 							<strong>Service:</strong><br />
 							<?php print form::dropdown('service_id', $service_array, ''); ?>
@@ -188,13 +189,13 @@
 						<?php print form::close(); ?>
 					</div>
 				</div>
-				
+
 			</div>
 			<script type="text/javascript">
 			// Levels JS
-			function fillFields(id, service_id, level_id, service_userid, service_account, 
-								reporter_first, reporter_last, 
-			                    reporter_email, reporter_phone, reporter_ip, 
+			function fillFields(id, service_id, level_id, service_userid, service_account,
+								reporter_first, reporter_last,
+			                    reporter_email, reporter_phone, reporter_ip,
 			                    reporter_date)
 			{
 				$("#reporter_id").attr("value", unescape(id));
@@ -208,6 +209,6 @@
 	    		$("#reporter_phone").attr("value", unescape(reporter_phone));
 	    		$("#reporter_ip").attr("value", unescape(reporter_ip));
 	    		$("#reporter_date").attr("value", unescape(reporter_date));
-				
+
 			}
 			</script>

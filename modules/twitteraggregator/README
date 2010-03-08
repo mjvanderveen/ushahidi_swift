@@ -1,18 +1,42 @@
 ==========================
 Ushahidi Twitter Aggregator
+By: Maarten van der Veen
+Version 0.01
 ==========================
-
 There are three controller services:
-- Twitter controller; a service that will connect to the twitter firehose and add tweets to a rotating file
+- Aggregator controller; a service that will connect to the twitter firehose and add tweets to a rotating file
 - Parser controller; a crontab that should run often, that grabs the oldest rotated file and parses the tweets and creates a csv file for batch insert
-
-This controller should yet be created:
-- Insert controller; a crontab that should run often, that grabs the oldest csv file and performs a batch insert into the database.
+- Dumper controller; a crontab that should run often, that grabs the oldest csv file and performs a batch insert into the database.
 
 ==========================
 Config
 ==========================
 Set the tmp_directory configuration option in the module, to choose the directory where to store the temporary files. Make sure it's writable by the user running the process
 
-Set the site_protocol in the application/config/config.php to '', instead of 'http'. For now the only way to get this to work. This
-should change since it interferes with the website behavior
+Set the site_protocol in the application/config/config.php to '', instead of 'http'. For now the only way to get this to work.
+
+Make sure your database user has FILE_PRIV = yes, otherwise it cannot load batch csv files into the db
+
+Set your twitter username and password through the admin settings page.
+
+Update your database with the sql/update file
+==========================
+Running
+==========================
+To run the php crontab use:
+cd to path/to/index.php
+path/to/php.exe path/to/index.php twitter/index
+path/to/php.exe path/to/index.php parser/index
+
+==========================
+Admin
+==========================
+The admin page can be accessed on http://path/to/admin/twitter/index, you have to be logged in as admin to access this page
+Currently, with a normal twitter account, you will have 150 api calls each hour, so if you add new geonames or unknown users
+to the admin, you are limited to this number per hour.
+
+You can add 3 keywords, users and geo locations at a time. You will get all the tweets with EITHER of these.
+
+Keywords: case sensitive keywords
+Users: usernames, by using the twitter API the exact username will be matched to the ID, so use the correct name only
+Locations: use the placename + countrycode, the geonames API will be used to get the proper GPS location. Don't use streetnames etc, it doesn't work.

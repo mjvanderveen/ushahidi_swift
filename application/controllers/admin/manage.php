@@ -3,14 +3,14 @@
  * This controller is used to add/ remove categories
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
- * @module     Admin Manage Controller  
+ * @module     Admin Manage Controller
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 
 class Manage_Controller extends Admin_Controller
@@ -20,22 +20,22 @@ class Manage_Controller extends Admin_Controller
 	{
 		parent::__construct();
 		$this->template->this_page = 'manage';
-		
+
 		// If this is not a super-user account, redirect to dashboard
 		if (!$this->auth->logged_in('admin') && !$this->auth->logged_in('superadmin'))
         {
              url::redirect('admin/dashboard');
 		}
 	}
-	
+
 	/*
 	Add Edit Categories
 	*/
 	function index()
-	{	
+	{
 		$this->template->content = new View('admin/categories');
 		$this->template->content->title = 'Categories';
-		
+
 		// setup and initialize form field names
 		$form = array
 	    (
@@ -47,7 +47,7 @@ class Manage_Controller extends Admin_Controller
 	        'category_color'  => '',
 			'category_image'  => ''
 	    );
-	    
+
 		// copy the form as errors, so the errors will be stored with keys corresponding to the form field names
 	    $errors = $form;
 		$form_error = FALSE;
@@ -59,10 +59,10 @@ class Manage_Controller extends Admin_Controller
 	    {
 	        // Instantiate Validation, use $post, so we don't overwrite $_POST fields with our own things
 			$post = Validation::factory(array_merge($_POST,$_FILES));
-			
+
 	         //  Add some filters
 	        $post->pre_filter('trim', TRUE);
-	
+
 			if ($post->action == 'a')		// Add Action
 			{
 				// Add some rules, the input field, followed by a list of checks, carried out in order
@@ -70,23 +70,23 @@ class Manage_Controller extends Admin_Controller
 				$post->add_rules('category_title','required', 'length[3,80]');
 				$post->add_rules('category_description','required');
 				$post->add_rules('category_color','required', 'length[6,6]');
-				$post->add_rules('category_image', 'upload::valid', 
+				$post->add_rules('category_image', 'upload::valid',
 					'upload::type[gif,jpg,png]', 'upload::size[50K]');
 				$post->add_callbacks('parent_id', array($this,'parent_id_chk'));
 			}
-			
+
 			// Test to see if things passed the rule checks
 	        if ($post->validate())
 	        {
 				$category_id = $post->category_id;
 				$category = new Category_Model($category_id);
-				
+
 				if( $post->action == 'd' )
 				{ // Delete Action
 					$category->delete( $category_id );
 					$form_saved = TRUE;
 					$form_action = "DELETED";
-			
+
 				}
 				else if( $post->action == 'v' )
 				{ // Show/Hide Action
@@ -116,15 +116,15 @@ class Manage_Controller extends Admin_Controller
 						$form_saved = TRUE;
 						$form_action = "MODIFIED";
 					}
-				} 
+				}
 				else if( $post->action == 'a' )
-				{ // Save Action				
+				{ // Save Action
 					$category->parent_id = $post->parent_id;
 					$category->category_title = $post->category_title;
 					$category->category_description = $post->category_description;
 					$category->category_color = $post->category_color;
 					$category->save();
-					
+
 					// Upload Image/Icon
 					$filename = upload::save('category_image');
 					if ($filename)
@@ -137,18 +137,18 @@ class Manage_Controller extends Admin_Controller
 
 						// Remove the temporary file
 						unlink($filename);
-						
+
 						// Delete Old Image
 						$category_old_image = $category->category_image;
 						if (!empty($category_old_image)
 							&& file_exists(Kohana::config('upload.directory', TRUE).$category_old_image))
 							unlink(Kohana::config('upload.directory', TRUE).$category_old_image);
-						
+
 						// Save
 						$category->category_image = $new_filename.".png";
 						$category->save();
 					}
-					
+
 					$form_saved = TRUE;
 					$form_action = "ADDED/EDITED";
 				}
@@ -177,14 +177,14 @@ class Manage_Controller extends Admin_Controller
         $categories = ORM::factory('category')
 						->where('parent_id','0')
                         ->orderby('category_title', 'asc')
-                        ->find_all((int) Kohana::config('settings.items_per_page_admin'), 
+                        ->find_all((int) Kohana::config('settings.items_per_page_admin'),
                             $pagination->sql_offset);
 		 $parents_array = ORM::factory('category')
             ->where('parent_id','0')
             ->select_list('id', 'category_title');
         // add none to the list
         $parents_array[0] = "--- Top Level Category ---";
-		
+
 		$this->template->content->errors = $errors;
         $this->template->content->form_error = $form_error;
         $this->template->content->form_saved = $form_saved;
@@ -192,7 +192,7 @@ class Manage_Controller extends Admin_Controller
         $this->template->content->pagination = $pagination;
         $this->template->content->total_items = $pagination->total_items;
         $this->template->content->categories = $categories;
-		
+
 		$this->template->content->parents_array = $parents_array;
 
 		// Locale (Language) Array
@@ -209,7 +209,7 @@ class Manage_Controller extends Admin_Controller
 	function organizations()
 	{
 		$this->template->content = new View('admin/organizations');
-		
+
 		// setup and initialize form field names
 		$form = array
 	    (
@@ -227,13 +227,13 @@ class Manage_Controller extends Admin_Controller
 		$form_error = FALSE;
 		$form_saved = FALSE;
 		$form_action = "";
-		
+
 		// check, has the form been submitted, if so, setup validation
 	    if ($_POST)
 	    {
 	        // Instantiate Validation, use $post, so we don't overwrite $_POST fields with our own things
 			$post = Validation::factory($_POST);
-			
+
 	         //  Add some filters
 	        $post->pre_filter('trim', TRUE);
 
@@ -246,22 +246,22 @@ class Manage_Controller extends Admin_Controller
 				$post->add_rules('organization_phone1', 'length[3,50]');
 				$post->add_rules('organization_phone2', 'length[3,50]');
 			}
-			
+
 			// Test to see if things passed the rule checks
 	        if ($post->validate())
 	        {
 				$organization_id = $post->organization_id;
-				
+
 				$organization = new Organization_Model($organization_id);
-				
+
 				if( $post->action == 'd' )
 				{ // Delete Action
 					$organization->delete( $organization_id );
 					$form_saved = TRUE;
 					$form_action = "DELETED";
-				
+
 				}
-				else if( $post->action == 'v' )			
+				else if( $post->action == 'v' )
 				{ // Show/Hide Action
 	            	if ($organization->loaded==true)
 					{
@@ -276,7 +276,7 @@ class Manage_Controller extends Admin_Controller
 						$form_action = "MODIFIED";
 					}
 				}
-				else if( $post->action == 'a' ) 		
+				else if( $post->action == 'a' )
 				{ // Save Action
 					$organization->organization_name = $post->organization_name;
 					$organization->organization_description = $post->organization_description;
@@ -287,21 +287,21 @@ class Manage_Controller extends Admin_Controller
 					$organization->save();
 					$form_saved = TRUE;
 					$form_action = "ADDED/EDITED";
-				}       
+				}
 	        }
 	        else
 			{ // No! We have validation errors, we need to show the form again, with the errors
-				
+
 	             // repopulate the form fields
-		         $form = arr::overwrite( $form, $post->as_array() ); 
+		         $form = arr::overwrite( $form, $post->as_array() );
 
                // populate the error fields, if any
-                $errors = arr::overwrite($errors, 
+                $errors = arr::overwrite($errors,
 					$post->errors('organization'));
                 $form_error = TRUE;
             }
         }
-		
+
         // Pagination
         $pagination = new Pagination(array(
                             'query_string' => 'page',
@@ -312,7 +312,7 @@ class Manage_Controller extends Admin_Controller
 
         $organization = ORM::factory('organization')
                         ->orderby('organization_name', 'asc')
-                        ->find_all((int) Kohana::config('settings.items_per_page_admin'), 
+                        ->find_all((int) Kohana::config('settings.items_per_page_admin'),
                             $pagination->sql_offset);
 
         $this->template->content->form = $form;
@@ -328,15 +328,15 @@ class Manage_Controller extends Admin_Controller
         $this->template->colorpicker_enabled = TRUE;
         $this->template->js = new View('admin/organization_js');
 	}
-	
-	
+
+
 	/*
 	Add Edit Pages
 	*/
 	function pages()
 	{
 		$this->template->content = new View('admin/pages');
-		
+
 		// setup and initialize form field names
 		$form = array
 	    (
@@ -351,13 +351,13 @@ class Manage_Controller extends Admin_Controller
 		$form_error = FALSE;
 		$form_saved = FALSE;
 		$form_action = "";
-		
+
 		// check, has the form been submitted, if so, setup validation
 	    if ($_POST)
 	    {
 	        // Instantiate Validation, use $post, so we don't overwrite $_POST fields with our own things
 			$post = Validation::factory($_POST);
-			
+
 	         //  Add some filters
 	        $post->pre_filter('trim', TRUE);
 
@@ -366,22 +366,22 @@ class Manage_Controller extends Admin_Controller
 				$post->add_rules('page_title','required', 'length[3,150]');
 				$post->add_rules('page_description','required');
 			}
-			
+
 			// Test to see if things passed the rule checks
 	        if ($post->validate())
 	        {
 				$page_id = $post->page_id;
-				
+
 				$page = new Page_Model($page_id);
-				
+
 				if( $post->action == 'd' )
 				{ // Delete Action
 					$page->delete( $page_id );
 					$form_saved = TRUE;
 					$form_action = "DELETED";
-				
+
 				}
-				else if( $post->action == 'v' )			
+				else if( $post->action == 'v' )
 				{ // Show/Hide Action
 	            	if ($page->loaded==true)
 					{
@@ -396,7 +396,7 @@ class Manage_Controller extends Admin_Controller
 						$form_action = "MODIFIED";
 					}
 				}
-				else if( $post->action == 'a' ) 		
+				else if( $post->action == 'a' )
 				{ // Save Action
 					$page->page_title = $post->page_title;
 					$page->page_tab = $post->page_tab;
@@ -404,21 +404,21 @@ class Manage_Controller extends Admin_Controller
 					$page->save();
 					$form_saved = TRUE;
 					$form_action = "ADDED/EDITED";
-				}       
+				}
 	        }
 	        else
 			{ // No! We have validation errors, we need to show the form again, with the errors
-				
+
 	             // repopulate the form fields
-		         $form = arr::overwrite( $form, $post->as_array() ); 
+		         $form = arr::overwrite( $form, $post->as_array() );
 
                // populate the error fields, if any
-                $errors = arr::overwrite($errors, 
+                $errors = arr::overwrite($errors,
 					$post->errors('page'));
                 $form_error = TRUE;
             }
         }
-		
+
         // Pagination
         $pagination = new Pagination(array(
                             'query_string' => 'page',
@@ -429,7 +429,7 @@ class Manage_Controller extends Admin_Controller
 
         $pages = ORM::factory('page')
                         ->orderby('page_title', 'asc')
-                        ->find_all((int) Kohana::config('settings.items_per_page_admin'), 
+                        ->find_all((int) Kohana::config('settings.items_per_page_admin'),
                             $pagination->sql_offset);
 
         $this->template->content->form = $form;
@@ -444,16 +444,16 @@ class Manage_Controller extends Admin_Controller
         // Javascript Header
         $this->template->editor_enabled = TRUE;
         $this->template->js = new View('admin/pages_js');
-	}	
-	
-	
+	}
+
+
 	/*
 	Add Edit News Feeds
 	*/
 	function feeds()
 	{
 		$this->template->content = new View('admin/feeds');
-		
+
 		// setup and initialize form field names
 		$form = array
 	    (
@@ -468,25 +468,25 @@ class Manage_Controller extends Admin_Controller
 		$form_error = FALSE;
 		$form_saved = FALSE;
 		$form_action = "";
-		
-		if( $_POST ) 
+
+		if( $_POST )
 		{
 			$post = Validation::factory( $_POST );
-			
+
 			 //  Add some filters
 	        $post->pre_filter('trim', TRUE);
-	
+
 			if ($post->action == 'a')		// Add Action
 			{
 				// Add some rules, the input field, followed by a list of checks, carried out in order
 				$post->add_rules('feed_name','required', 'length[3,70]');
 				$post->add_rules('feed_url','required','url');
 			}
-			
+
 			if( $post->validate() )
 			{
 				$feed_id = $post->feed_id;
-				
+
 				$feed = new Feed_Model($feed_id);
 				if ( $post->action == 'd' ) { 					// Delete Action
 					if ($feed->loaded==true)
@@ -509,7 +509,7 @@ class Manage_Controller extends Admin_Controller
 						$form_saved = TRUE;
 						$form_action = "MODIFIED";
 					}
-				}else if( $post->action == 'r' ) { 
+				}else if( $post->action == 'r' ) {
 					$this->_parse_feed();
 				} else {										// Save Action
 					// SAVE Feed
@@ -519,18 +519,18 @@ class Manage_Controller extends Admin_Controller
 					$form_saved = TRUE;
 					$form_action = "ADDED/EDITED";
 				}
-				
+
 			} else {
 				// repopulate the form fields
 	            $form = arr::overwrite($form, $post->as_array());
 
                // populate the error fields, if any
-                $errors = arr::overwrite($errors, 
+                $errors = arr::overwrite($errors,
 					$post->errors('feeds'));
                 $form_error = TRUE;
 			}
 		}
-		
+
         // Pagination
         $pagination = new Pagination(array(
                             'query_string' => 'page',
@@ -540,7 +540,7 @@ class Manage_Controller extends Admin_Controller
 
         $feeds = ORM::factory('feed')
                         ->orderby('feed_name', 'asc')
-                        ->find_all((int) Kohana::config('settings.items_per_page_admin'), 
+                        ->find_all((int) Kohana::config('settings.items_per_page_admin'),
                             $pagination->sql_offset);
 
         $this->template->content->form_error = $form_error;
@@ -555,14 +555,14 @@ class Manage_Controller extends Admin_Controller
         $this->template->colorpicker_enabled = TRUE;
         $this->template->js = new View('admin/feeds_js');
 	}
-	
+
 	/*
 	View/Edit News Feed Items
 	*/
 	function feeds_items($feed_id = NULL)
 	{
 		$this->template->content = new View('admin/feeds_items');
-		
+
 		if ( isset($feed_id)  && !empty($feed_id) )
 		{
 			$filter = " feed_id = '" . $feed_id . "' ";
@@ -571,12 +571,12 @@ class Manage_Controller extends Admin_Controller
 		{
 			$filter = " 1=1";
 		}
-		
+
 		// check, has the form been submitted?
 		$form_error = FALSE;
 		$form_saved = FALSE;
 		$form_action = "";
-		
+
 		// Pagination
 		$pagination = new Pagination(array(
 			'query_string'   => 'page',
@@ -590,7 +590,7 @@ class Manage_Controller extends Admin_Controller
 			->where($filter)
 			->orderby('item_date','desc')
 			->find_all((int) Kohana::config('settings.items_per_page_admin'), $pagination->sql_offset);
-			
+
 		$this->template->content->feed_items = $feed_items;
 		$this->template->content->pagination = $pagination;
 		$this->template->content->form_error = $form_error;
@@ -599,20 +599,20 @@ class Manage_Controller extends Admin_Controller
 
 		// Total Reports
 		$this->template->content->total_items = $pagination->total_items;
-		
+
 		// Javascript Header
-		$this->template->js = new View('admin/feeds_items_js');	
+		$this->template->js = new View('admin/feeds_items_js');
 	}
-	
-	
+
+
 	/*
 	Add Edit Layers (KML, KMZ, GeoRSS)
 	*/
 	function layers()
-	{	
+	{
 		$this->template->content = new View('admin/layers');
 		$this->template->content->title = 'Layers';
-		
+
 		// setup and initialize form field names
 		$form = array
 	    (
@@ -623,7 +623,7 @@ class Manage_Controller extends Admin_Controller
 	        'layer_file'  => '',
 			'layer_color'  => ''
 	    );
-	    
+
 		// copy the form as errors, so the errors will be stored with keys corresponding to the form field names
 	    $errors = $form;
 		$form_error = FALSE;
@@ -635,10 +635,10 @@ class Manage_Controller extends Admin_Controller
 	    {
 	        // Instantiate Validation, use $post, so we don't overwrite $_POST fields with our own things
 			$post = Validation::factory(array_merge($_POST,$_FILES));
-			
+
 	         //  Add some filters
 	        $post->pre_filter('trim', TRUE);
-	
+
 			if ($post->action == 'a')		// Add Action
 			{
 				// Add some rules, the input field, followed by a list of checks, carried out in order
@@ -651,32 +651,32 @@ class Manage_Controller extends Admin_Controller
 				{
 					$post->add_error('layer_url', 'atleast');
 				}
-				if ( !empty($_POST['layer_url']) && 
+				if ( !empty($_POST['layer_url']) &&
 					(!empty($_FILES['layer_file']['name']) || !empty($_POST['layer_file_old'])) )
 				{
 					$post->add_error('layer_url', 'both');
 				}
 			}
-			
+
 			// Test to see if things passed the rule checks
 	        if ($post->validate())
 	        {
 				$layer_id = $post->layer_id;
 				$layer = new Layer_Model($layer_id);
-				
+
 				if( $post->action == 'd' )
 				{ // Delete Action
-					
+
 					// Delete KMZ file if any
 					$layer_file = $layer->layer_file;
 					if (!empty($layer_file)
 					&& file_exists(Kohana::config('upload.directory', TRUE).$layer_file))
 						unlink(Kohana::config('upload.directory', TRUE) . $layer_file);
-						
+
 					$layer->delete( $layer_id );
 					$form_saved = TRUE;
 					$form_action = "DELETED";
-			
+
 				}
 				else if( $post->action == 'v' )
 				{ // Show/Hide Action
@@ -706,14 +706,14 @@ class Manage_Controller extends Admin_Controller
 						$form_saved = TRUE;
 						$form_action = "MODIFIED";
 					}
-				} 
+				}
 				else if( $post->action == 'a' )
-				{ // Save Action				
+				{ // Save Action
 					$layer->layer_name = $post->layer_name;
 					$layer->layer_url = $post->layer_url;
 					$layer->layer_color = $post->layer_color;
 					$layer->save();
-					
+
 					// Upload KMZ/KML
 					$path_info = upload::save("layer_file");
 					if ($path_info)
@@ -721,7 +721,7 @@ class Manage_Controller extends Admin_Controller
 						$path_parts = pathinfo($path_info);
 						$file_name = $path_parts['filename'];
 						$file_ext = $path_parts['extension'];
-						
+
 						if (strtolower($file_ext) == "kmz")
 						{ // This is a KMZ Zip Archive, so extract
 							$archive = new Pclzip($path_info);
@@ -729,25 +729,25 @@ class Manage_Controller extends Admin_Controller
 							{
 								foreach ($archive_files as $file)
 								{
-									$ext_file_name = $file['filename'];								
+									$ext_file_name = $file['filename'];
 								}
 							}
-							
-							if ( $ext_file_name && 
+
+							if ( $ext_file_name &&
 									$archive->extract(PCLZIP_OPT_PATH, Kohana::config('upload.directory')) == TRUE )
 							{ // Okay, so we have an extracted KML - Rename it and delete KMZ file
 								rename($path_parts['dirname']."/".$ext_file_name,
 									$path_parts['dirname']."/".$file_name.".kml");
-								
+
 								$file_ext = "kml";
 								unlink($path_info);
 							}
 						}
-						
+
 						$layer->layer_file = $file_name.".".$file_ext;
 						$layer->save();
 					}
-					
+
 					$form_saved = TRUE;
 					$form_action = "ADDED/EDITED";
 				}
@@ -774,9 +774,9 @@ class Manage_Controller extends Admin_Controller
 
         $layers = ORM::factory('layer')
                         ->orderby('layer_name', 'asc')
-                        ->find_all((int) Kohana::config('settings.items_per_page_admin'), 
+                        ->find_all((int) Kohana::config('settings.items_per_page_admin'),
                             $pagination->sql_offset);
-		
+
 		$this->template->content->errors = $errors;
         $this->template->content->form_error = $form_error;
         $this->template->content->form_saved = $form_saved;
@@ -789,15 +789,15 @@ class Manage_Controller extends Admin_Controller
         $this->template->colorpicker_enabled = TRUE;
         $this->template->js = new View('admin/layers_js');
     }
-	
+
 	/*
 	Add Edit Reporter Levels
 	*/
 	function levels()
-	{	
+	{
 		$this->template->content = new View('admin/levels');
 		$this->template->content->title = 'Reporter Levels';
-		
+
 		// setup and initialize form field names
 		$form = array
 		(
@@ -811,7 +811,7 @@ class Manage_Controller extends Admin_Controller
 		$form_error = FALSE;
 		$form_saved = FALSE;
 		$form_action = "";
-		
+
 		// check, has the form been submitted, if so, setup validation
 		if ($_POST)
 		{
@@ -828,22 +828,22 @@ class Manage_Controller extends Admin_Controller
 				$post->add_rules('level_description','required');
 				$post->add_rules('level_weight','required');
 			}
-			
+
 			// Test to see if things passed the rule checks
 			if ($post->validate())
 			{
 				$level_id = $post->level_id;
 				$level = new Level_Model($level_id);
-				
+
 				if( $post->action == 'd' )				// Delete Action
 				{
 					$level->delete( $level_id );
 					$form_saved = TRUE;
 					$form_action = "DELETED";
-			
+
 				}
 				else if( $post->action == 'a' ) 		// Save Action
-				{		
+				{
 					// SAVE Category
 					$level->level_title = $post->level_title;
 					$level->level_description = $post->level_description;
@@ -874,7 +874,7 @@ class Manage_Controller extends Admin_Controller
 
 		$levels = ORM::factory('level')
                         ->orderby('level_weight', 'asc')
-                        ->find_all((int) Kohana::config('settings.items_per_page_admin'), 
+                        ->find_all((int) Kohana::config('settings.items_per_page_admin'),
                             $pagination->sql_offset);
 
 		$this->template->content->errors = $errors;
@@ -885,19 +885,19 @@ class Manage_Controller extends Admin_Controller
 		$this->template->content->total_items = $pagination->total_items;
 		$this->template->content->levels = $levels;
     }
-	
+
 	/*
 	Add Edit Reporters
 	*/
 	function reporters()
-	{	
+	{
 		$this->template->content = new View('admin/reporters');
 		$this->template->content->title = 'Reporters';
 
 		// setup and initialize form field names
 		$form = array
 		(
-			'reporter_id' => '',    
+			'reporter_id' => '',
 			'service_id' => '',
 			'level_id' => '',
 			'service_userid' => '',
@@ -927,7 +927,7 @@ class Manage_Controller extends Admin_Controller
 			if ($post->action == 'a')		// Add Action
 			{
 				// Add some rules, the input field, followed by a list of checks, carried out in order
-				$post->add_rules('service_id','required');				
+				$post->add_rules('service_id','required');
 				// we also require either service_userid or service_account, not necessarily both
 			}
 
@@ -936,7 +936,7 @@ class Manage_Controller extends Admin_Controller
 			{
 				$reporter_id = $post->reporter_id;
 				$reporter = new Reporter_Model($reporter_id);
-				
+
 				if( $post->action == 'd' )				// Delete Action
 				{
 					$reporter->delete( $reporter_id );
@@ -945,8 +945,8 @@ class Manage_Controller extends Admin_Controller
 
 				}
 				else if( $post->action == 'a' ) 		// Save Action
-				{		
-					// SAVE Reporter    
+				{
+					// SAVE Reporter
 					$reporter->service_id = $post->service_id;
 					$reporter->level_id = $post->level_id;
 					/*$reporter->service_userid = $post->service_userid;
@@ -957,7 +957,7 @@ class Manage_Controller extends Admin_Controller
 					$reporter->reporter_phone = $post->reporter_phone;
 					$reporter->reporter_ip = $post->reporter_ip;
 					$reporter->reporter_date = $post->reporter_date;*/
-					
+
 					$reporter->save();
 					$form_saved = TRUE;
 					$form_action = "ADDED/EDITED";
@@ -984,7 +984,7 @@ class Manage_Controller extends Admin_Controller
 
 		$reporters = ORM::factory('reporter')
 		                ->orderby('reporter_first', 'asc')
-		                ->find_all((int) Kohana::config('settings.items_per_page_admin'), 
+		                ->find_all((int) Kohana::config('settings.items_per_page_admin'),
 		                    $pagination->sql_offset);
 
 		$this->template->content->form = $form;
@@ -1000,18 +1000,18 @@ class Manage_Controller extends Admin_Controller
 		$this->template->content->level_array = Level_Model::get_array();
 		$this->template->content->service_array = Service_Model::get_array();
 
-	}	
+	}
 	/**
 	 * setup simplepie
 	 */
 	private function _setup_simplepie( $feed_url )
 	{
 		$data = new SimplePie();
-	
+
 		// Convert To GeoRSS feed
 		$geocoder = new Geocoder();
 		$georss_feed = $geocoder->geocode_feed($feed_url);
-	
+
 		$data->set_raw_data( $georss_feed );
 		$data->enable_cache(false);
 		$data->enable_order_by_date(true);
@@ -1020,7 +1020,7 @@ class Manage_Controller extends Admin_Controller
 
 		return $data;
 	}
-	
+
 	/**
 	 * parse feed and send feed items to database
 	 */
@@ -1028,16 +1028,16 @@ class Manage_Controller extends Admin_Controller
 	{
 		// Max number of feeds to keep
 		$max_feeds = 100;
-		
+
 		// Today's Date
 		$today = strtotime('now');
-		
+
 		// Get All Feeds From DB
 		$feeds = ORM::factory('feed')->find_all();
 		foreach ($feeds as $feed)
 		{
 			$last_update = $feed->feed_update;
-			
+
 			// Has it been more than 24 hours since the last update?
 			// Since its a manual refresh, we don't need to set a time
 			if ( ((int)$today - (int)$last_update) > 0	)	// 86400 = 24 hours
@@ -1053,7 +1053,7 @@ class Manage_Controller extends Admin_Controller
 					$date = $feed_data_item->get_date();
 					$latitude = $feed_data_item->get_latitude();
 					$longitude = $feed_data_item->get_longitude();
-					
+
 					// Make Sure Title is Set (Atleast)
 					if (isset($title) && !empty($title ))
 					{
@@ -1076,7 +1076,7 @@ class Manage_Controller extends Admin_Controller
 								$location->save();
 								$location_id = $location->id;
 							}
-							
+
 							$newitem = new Feed_Item_Model();
 							$newitem->feed_id = $feed->id;
 							$newitem->location_id = $location_id;
@@ -1102,7 +1102,7 @@ class Manage_Controller extends Admin_Controller
 						}
 					}
 				}
-				
+
 				// Get Feed Item Count
 				$feed_count = ORM::factory('feed_item')->where('feed_id', $feed->id)->count_all();
 				if ($feed_count > $max_feeds) {
@@ -1126,7 +1126,7 @@ class Manage_Controller extends Admin_Controller
 			}
 		}
 	}
-	
+
 	/**
 	 * Checks if parent_id for this category exists
      * @param Validation $post $_POST variable with validation rules
@@ -1136,22 +1136,22 @@ class Manage_Controller extends Admin_Controller
 		// If add->rules validation found any errors, get me out of here!
 		if (array_key_exists('parent_id', $post->errors()))
 			return;
-		
+
 		$category_id = $post->category_id;
 		$parent_id = $post->parent_id;
 		// This is a parent category - exit
 		if ($parent_id == 0)
 			return;
-		
+
 		$parent_exists = ORM::factory('category')
 			->where('id', $parent_id)
 			->find();
-		
+
 		if (!$parent_exists->loaded)
 		{ // Parent Category Doesn't Exist
 			$post->add_error( 'parent_id', 'exists');
 		}
-		
+
 		if (!empty($category_id) && $category_id == $parent_id)
 		{ // Category ID and Parent ID can't be the same!
 			$post->add_error( 'parent_id', 'same');

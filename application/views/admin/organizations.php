@@ -1,16 +1,16 @@
-<?php 
+<?php
 /**
  * Organizations view page.
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @module     API Controller
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 ?>
 			<div class="bg">
@@ -20,6 +20,7 @@
 					<a href="<?php echo url::base() . 'admin/manage/organizations' ?>" class="active">Organizations</a>
 					<span>(<a href="#add">Add New</a>)</span>
 					<a href="<?php echo url::base() . 'admin/manage/pages' ?>">Pages</a>
+					<a href="<?php echo url::base() . 'admin/manage/twitter' ?>">Twitter</a>
 					<a href="<?php echo url::base() . 'admin/manage/feeds' ?>">News Feeds</a>
 					<a href="<?php echo url::base() . 'admin/manage/layers' ?>">Layers</a>
 					<a href="<?php echo url::base() . 'admin/manage/reporters' ?>">Reporters</a>
@@ -83,8 +84,8 @@
 												<h3>No Results To Display!</h3>
 											</td>
 										</tr>
-									<?php	
-									} 
+									<?php
+									}
 									foreach ($organizations as $organization)
 									{
 										$organization_id = $organization->id;
@@ -92,7 +93,7 @@
 										 $organization->organization_name;
 										$organization_description = $organization->organization_description;
 										$organization_description_short = substr($organization->organization_description, 0, 150);
-										$organization_website = 
+										$organization_website =
 											$organization->organization_website;
 										$organization_active = $organization->organization_active;
 										$organization_email = $organization->organization_email;
@@ -107,7 +108,7 @@
 													<p><?php echo $organization_description_short; ?>...</p>
 												</div>
 											</td>
-											
+
 											<td class="col-4">
 												<ul>
 													<li class="none-separator"><a href="#add" onClick="fillFields(
@@ -131,7 +132,7 @@
 						</div>
 					<?php print form::close(); ?>
 				</div>
-				
+
 				<div class="tabs">
 					<!-- tabset -->
 					<a name="add"></a>
@@ -142,10 +143,10 @@
 					<div class="tab">
 						<?php print form::open(NULL,array('id' => 'orgMain',
 						 	'name' => 'orgMain')); ?>
-						<input type="hidden" id="organization_id" 
+						<input type="hidden" id="organization_id"
 							name="organization_id" value="<?php echo $form['organization_id']; ?>" />
-						<input type="hidden" name="action" 
-							id="action" value="a"/>							
+						<input type="hidden" name="action"
+							id="action" value="a"/>
 						<div class="tab_form_item2">
 							<strong>Organization Name:</strong><br />
 							<?php print form::input('organization_name', $form['organization_name'], ' class="text long"'); ?>
@@ -177,5 +178,5 @@
 						<?php print form::close(); ?>
 					</div>
 				</div>
-				
+
 			</div>

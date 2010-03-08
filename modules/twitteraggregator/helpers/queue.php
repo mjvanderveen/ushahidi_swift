@@ -7,7 +7,7 @@
  */
 class queue {
 
-	public static function get_oldest_file($directory)
+	public static function get_oldest_file($directory, $extension)
 	{
 		$file_date = array();
 
@@ -18,9 +18,14 @@ class queue {
 		}
 
 		if ($handle = opendir($directory)) {
+			$files = array();
+
 		    while (false !== ($file = readdir($handle)))
 		    {
-		        $files[] = $file;
+		    	if(strstr($file, $extension))
+		    	{
+		        	$files[] = $file;
+		    	}
 		    }
 
 		    foreach ($files as $val)
@@ -62,7 +67,7 @@ class queue {
                     case "NULL":     $_spFormat = ''; break;
                     case "boolean":  $_spFormat = ($workArray[$i] == true) ? 'true': 'false'; break;
                     # Make sure sprintf has a good datatype to work with
-                    case "integer":  $_spFormat = '%i'; break;
+                    case "integer":  $_spFormat = '%0.2f'; break;
                     case "double":   $_spFormat = '%0.2f'; break;
                     case "string":   $_spFormat = '%s'; break;
                     # Unknown or invalid items for a csv - note: the datatype of array is already handled above, assuming the data is nested
